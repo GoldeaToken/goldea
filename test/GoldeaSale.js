@@ -80,6 +80,22 @@ contract("GoldeaSale", function(accounts) {
 
     await assertEqual(testing.calculateTotal(), 4000);
   });
+
+  it("should turn off sale on endDate", async () => {
+    await token.transfer(testing.address, bn("200000000000"));
+
+    var diff = (Date.parse("2018-03-15T00:00:00.000Z") - new Date().getTime()) / 1000;
+    console.log("diff=" + diff);
+    await web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [diff - 100], id: 0});
+
+    await testing.sendTransaction({value: bn("3750000000000001"), from: accounts[4]});
+    await assertEqual(token.balanceOf(accounts[4]), 9999999);
+
+    await web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [diff + 100], id: 0});
+    await expectThrow(
+      testing.sendTransaction({value: bn("3750000000000001"), from: accounts[4]})
+    );
+  })
 });
 
 
