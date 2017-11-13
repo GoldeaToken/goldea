@@ -4,6 +4,6 @@ import "../token/IssuedToken.sol";
 import "../token/BurnableToken.sol";
 
 contract GoldeaToken is IssuedToken, BurnableToken {
-    function GoldeaToken(uint256 _totalSupply) IssuedToken("GOLDEA", "GEA", _totalSupply, 8) {
+    function GoldeaToken(uint256 _totalSupply) IssuedToken("GOLDEA", "GEA", _totalSupply, 8) public {
     }
 }

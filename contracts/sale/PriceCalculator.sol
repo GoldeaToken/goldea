@@ -11,15 +11,15 @@ contract PriceCalculator is Calculator, Ownable {
 
     uint256 public price;
 
-    function PriceCalculator(uint256 _price) {
+    function PriceCalculator(uint256 _price) public {
         price = _price;
     }
 
-    function getAmount(uint value) constant returns (uint) {
+    function getAmount(uint value) constant public returns (uint) {
         return value.div(price);
     }
 
-    function setPrice(uint256 _price) onlyOwner {
+    function setPrice(uint256 _price) onlyOwner public {
         price = _price;
     }
 }

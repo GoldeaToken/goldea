@@ -1,12 +1,12 @@
 var IssuedToken = artifacts.require("./token/IssuedToken.sol");
-var Sale = artifacts.require("./sale/Sale.sol");
+var PreSale = artifacts.require("./sale/PreSale.sol");
 var PriceCalculator = artifacts.require("./sale/PriceCalculator.sol");
 
-contract("Sale", accounts => {
+contract("PreSale", accounts => {
     it("should sell tokens for ether", async () => {
         var token = await IssuedToken.new("TEST", "TST", 10**15, 0);
         var calculator = await PriceCalculator.new(10);
-        var sale = await Sale.new(token.address, calculator.address);
+        var sale = await PreSale.new(token.address, calculator.address);
 
         await token.approve(sale.address, await token.totalSupply.call());
 
@@ -17,7 +17,7 @@ contract("Sale", accounts => {
     it("should throw if user buying less than minimalTokens", async () => {
         var token = await IssuedToken.new("TEST", "TST", 10**15, 0);
         var calculator = await PriceCalculator.new(10);
-        var sale = await Sale.new(token.address, calculator.address);
+        var sale = await PreSale.new(token.address, calculator.address);
 
         await token.approve(sale.address, await token.totalSupply.call());
         await sale.setMinimalTokens(1000);

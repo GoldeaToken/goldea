@@ -9,7 +9,7 @@ contract GoldeaBonusCalculator is BonusCalculator, Ownable {
     uint constant period = 86400 * 7;
     mapping (uint => uint8) bonuses;
 
-    function GoldeaBonusCalculator(uint256 _start, uint256 _end) {
+    function GoldeaBonusCalculator(uint256 _start, uint256 _end) public {
         start = _start;
         end = _end;
         bonuses[0] = 30;
@@ -17,7 +17,7 @@ contract GoldeaBonusCalculator is BonusCalculator, Ownable {
         bonuses[3] = 10;
     }
 
-    function getBonus() constant returns (uint) {
+    function getBonus() constant public returns (uint) {
         assert(now > start);
         assert(now < end);
 
@@ -30,11 +30,11 @@ contract GoldeaBonusCalculator is BonusCalculator, Ownable {
         }
     }
 
-    function setStart(uint256 _start) onlyOwner() {
+    function setStart(uint256 _start) onlyOwner public {
         start = _start;
     }
 
-    function setEnd(uint256 _end) onlyOwner() {
+    function setEnd(uint256 _end) onlyOwner public {
         end = _end;
     }
 }

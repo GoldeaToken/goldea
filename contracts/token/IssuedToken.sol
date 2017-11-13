@@ -7,9 +7,8 @@ contract IssuedToken is StandardToken {
     string public name;
     string public symbol;
     uint public decimals;
-    address public owner;
 
-    function IssuedToken(string _name, string _symbol, uint _totalSupply, uint _decimals) {
+    function IssuedToken(string _name, string _symbol, uint _totalSupply, uint _decimals) public {
         name = _name;
         symbol = _symbol;
         totalSupply = _totalSupply;
