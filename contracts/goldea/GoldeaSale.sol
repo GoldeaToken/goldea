@@ -16,4 +16,8 @@ contract GoldeaSale is Sale {
         setRate(btcToken, _btcRate);
         setBonus(_bonus);
     }
+
+    function setBtcToken(address _btcToken) onlyOwner public {
+        btcToken = _btcToken;
+    }
 }
