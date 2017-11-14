@@ -1,11 +1,13 @@
 var GoldeaSale = artifacts.require("./goldea/GoldeaSale.sol");
 var GoldeaToken = artifacts.require("./goldea/GoldeaToken.sol");
+var IssuedToken = artifacts.require("./token/IssuedToken.sol");
 
 const expectThrow = require("./helpers/expectThrow.js");
 
 contract("GoldeaSale", function(accounts) {
   let testing;
   let token;
+
   beforeEach(async function() {
     token = await GoldeaToken.deployed();
     testing = await GoldeaSale.new(token.address, accounts[9]);
@@ -19,6 +21,19 @@ contract("GoldeaSale", function(accounts) {
   function bn(value) {
     return new web3.BigNumber(value);
   }
+
+  it("should not sell when paused", async () => {
+    await token.transfer(testing.address, bn("200000000000"));
+
+    await testing.pause();
+    await expectThrow(
+      testing.sendTransaction({value: bn("3750000000000001"), from: accounts[1]})
+    );
+
+    await expectThrow(
+      testing.onTokenTransfer(accounts[2], 1, "", {from: accounts[9]})
+    );
+  });
 
   it("should calculate amount", async () => {
     await assertEqual(testing.getAmount(0, bn('3750000000000000')), 9999999);
@@ -46,16 +61,24 @@ contract("GoldeaSale", function(accounts) {
     await assertEqual(testing.getAmount(accounts[9], bn('1')), 682);
   });
 
-  it("should sell tokens for ETH", async () => {
+  it("should sell tokens for ETH and withdraw ETH", async () => {
     await token.transfer(testing.address, bn("200000000000"));
 
     await testing.sendTransaction({value: bn("3750000000000001"), from: accounts[1]});
+    await assertEqual(await web3.eth.getBalance(testing.address), 3750000000000001);
     await assertEqual(token.balanceOf(accounts[1]), 9999999);
+    var before = (await web3.eth.getBalance(accounts[8])).toNumber();
+    await testing.withdraw(0, accounts[8], bn("3750000000000001"));
+    await assertEqual(await web3.eth.getBalance(accounts[8]), before + 3750000000000001);
+    await assertEqual(await web3.eth.getBalance(testing.address), 0);
   });
 
   it("should sell tokens for other tokens (BTC)", async () => {
     await token.transfer(testing.address, bn("200000000000"));
+    await testing.pause();
+    await testing.unpause();
 
+    //emulate onTokenTransfer from BTC token
     await testing.onTokenTransfer(accounts[2], 1, "", {from: accounts[9]});
     await assertEqual(token.balanceOf(accounts[2]), 593);
   });
@@ -75,26 +98,44 @@ contract("GoldeaSale", function(accounts) {
     await assertEqual(token.balanceOf(accounts[3]), 593);
   });
 
-  it("should calculate total", async () => {
-    await token.transfer(testing.address, bn("4000"));
+  it("should let withdraw any token", async () => {
+    var temp = await IssuedToken.new("TEST", "TST", 1000, 0);
+    await temp.transfer(testing.address, 1000);
 
-    await assertEqual(testing.calculateTotal(), 4000);
+    await assertEqual(temp.balanceOf(accounts[8]), 0);
+    await testing.withdraw(temp.address, accounts[8], 1000);
+    await assertEqual(temp.balanceOf(accounts[8]), 1000);
   });
 
-  it("should turn off sale on endDate", async () => {
+  it("should deny GoldeaToken withdraw", async () => {
     await token.transfer(testing.address, bn("200000000000"));
 
-    var diff = (Date.parse("2018-03-15T00:00:00.000Z") - new Date().getTime()) / 1000;
-    console.log("diff=" + diff);
+    await expectThrow(
+      testing.withdraw(token.address, accounts[8], 1000)
+    );
+  });
+
+  it("should turn off sale on endDate and burn rest", async () => {
+    await token.transfer(testing.address, bn("200000000000"));
+
+    await expectThrow(
+      testing.burn()
+    );
+
+    var diff = Math.round((Date.parse("2018-03-15T00:00:00.000Z") - new Date().getTime()) / 1000);
     await web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [diff - 100], id: 0});
 
     await testing.sendTransaction({value: bn("3750000000000001"), from: accounts[4]});
     await assertEqual(token.balanceOf(accounts[4]), 9999999);
 
-    await web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [diff + 100], id: 0});
+    await web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [200], id: 0});
     await expectThrow(
       testing.sendTransaction({value: bn("3750000000000001"), from: accounts[4]})
     );
+
+    await assertEqual(token.balanceOf(testing.address), 199990000001);
+    await testing.burn();
+    await assertEqual(token.balanceOf(testing.address), 0);
   })
 });
 

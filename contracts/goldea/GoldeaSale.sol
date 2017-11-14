@@ -2,11 +2,13 @@ pragma solidity ^0.4.15;
 
 
 import "../sale/Sale.sol";
+import "../token/BurnableToken.sol";
 
 
 contract GoldeaSale is Sale {
     address btcToken;
-    uint256 public constant end = 1521072000;//15.03.2018
+    uint256 public constant end = 1521072000;
+    uint256 public constant total = 200000000000000;
 
     function GoldeaSale(address _token, address _btcToken) Sale(_token) public {
         btcToken = _btcToken;
@@ -25,5 +27,10 @@ contract GoldeaSale is Sale {
     function doPurchase(address buyer, uint256 amount) internal {
         require(now < end);
         super.doPurchase(buyer, amount);
+    }
+
+    function burn() onlyOwner public {
+        require(now >= end);
+        BurnableToken(token).burn(token.balanceOf(this));
     }
 }

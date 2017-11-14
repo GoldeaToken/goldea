@@ -5,28 +5,30 @@ import '../token/ERC20.sol';
 import '../token/ExternalToken.sol';
 import './TokenReceiver.sol';
 import '../math/SafeMath.sol';
-import '../ownership/Ownable.sol';
+import '../lifecycle/Pausable.sol';
 
 
-contract AbstractSale is TokenReceiver, Ownable {
+contract AbstractSale is TokenReceiver, Pausable {
     using SafeMath for uint256;
 
     event BonusChange(uint256 bonus);
     event RateChange(address token, uint256 rate);
     event Purchase(address indexed buyer, address token, uint256 value, uint256 amount);
+    event Withdraw(address token, address to, uint256 value);
+    event Burn(address token, uint256 value, bytes data);
 
     mapping (address => uint256) rates;
     uint256 public bonus;
 
-    function onTokenTransfer(address _from, uint256 _value, bytes _data) public {
+    function onTokenTransfer(address _from, uint256 _value, bytes _data) whenNotPaused public {
         onReceive(msg.sender, _from, _value, _data);
     }
 
-    function() payable public {
+    function() payable whenNotPaused public {
         receiveWithData("");
     }
 
-    function receiveWithData(bytes _data) payable public {
+    function receiveWithData(bytes _data) payable whenNotPaused public {
         onReceive(address(0), msg.sender, msg.value, _data);
     }
 
@@ -46,7 +48,7 @@ contract AbstractSale is TokenReceiver, Ownable {
 
     function doPurchase(address buyer, uint256 amount) internal;
 
-    function toBytes20(bytes b, uint256 _start) internal pure returns (bytes20 result) {
+    function toBytes20(bytes b, uint256 _start) pure internal returns (bytes20 result) {
         require(_start + 20 <= b.length);
         assembly {
             let from := add(_start, add(b, 0x20))
@@ -77,14 +79,21 @@ contract AbstractSale is TokenReceiver, Ownable {
 
     function withdraw(address _token, address _to, uint256 _amount) onlyOwner public {
         require(_to != address(0));
+        verifyCanWithdraw(_token, _to, _amount);
         if (_token == address(0)) {
             _to.transfer(_amount);
         } else {
             ERC20(_token).transfer(_to, _amount);
         }
+        Withdraw(_token, _to, _amount);
     }
 
     function burnWithData(address _token, uint256 _amount, bytes _data) onlyOwner public {
         ExternalToken(_token).burn(_amount, _data);
+        Burn(_token, _amount, _data);
+    }
+
+    function verifyCanWithdraw(address _token, address _to, uint256 _amount) internal {
+
     }
 }

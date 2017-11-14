@@ -19,7 +19,10 @@ contract Sale is AbstractSale {
         token.transfer(buyer, amount);
     }
 
-    function calculateTotal() constant public returns (uint256) {
-        return token.balanceOf(this);
+    /**
+     * @dev It should not let owners transfer tokens to protect investors
+     */
+    function verifyCanWithdraw(address _token, address _to, uint256 _amount) internal {
+        require(_token != address(token));
     }
 }
