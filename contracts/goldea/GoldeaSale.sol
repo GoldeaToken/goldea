@@ -7,7 +7,7 @@ import "../token/BurnableToken.sol";
 
 contract GoldeaSale is Sale {
     address public btcToken;
-    uint256 public constant end = 1521072000;
+    uint256 public constant end = 1522540800;
     uint256 public constant total = 200000000000000;
 
     function GoldeaSale(address _token, address _btcToken) Sale(_token) public {

@@ -122,7 +122,7 @@ contract("GoldeaSale", function(accounts) {
       testing.burn()
     );
 
-    var diff = Math.round((Date.parse("2018-03-15T00:00:00.000Z") - new Date().getTime()) / 1000);
+    var diff = Math.round((Date.parse("2018-04-01T00:00:00.000Z") - new Date().getTime()) / 1000);
     await web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [diff - 100], id: 0});
 
     await testing.sendTransaction({value: bn("3750000000000001"), from: accounts[4]});
