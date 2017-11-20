@@ -1,0 +1,27 @@
+{
+  "name": "goldea-sale",
+  "version": "0.0.1",
+  "description": "Sale contracts for Goldea",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoldeaToken/goldea.git"
+  },
+  "keywords": [
+    "ethereum"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GoldeaToken/goldea/issues"
+  },
+  "homepage": "https://github.com/GoldeaToken/goldea",
+  "devDependencies": {
+    "daonomic-tests": "0.0.3"
+  }
+}

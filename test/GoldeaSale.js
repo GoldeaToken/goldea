@@ -48,7 +48,7 @@ contract("GoldeaSale", function(accounts) {
   });
 
   it("should calculate amount using bonus", async () => {
-    await testing.setBonus(15);
+    await testing.changeParameters(bn("2666666666"), bn("593333333333333333333"), 15);
 
     await assertEqual(testing.getAmount(0, bn('3750000000000001')), 11499999);
     await assertEqual(testing.getAmount(accounts[9], bn('100000000')), 68233333333);
