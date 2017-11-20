@@ -1,8 +1,7 @@
 var GoldeaSale = artifacts.require("./goldea/GoldeaSale.sol");
 var GoldeaToken = artifacts.require("./goldea/GoldeaToken.sol");
 var IssuedToken = artifacts.require("./token/IssuedToken.sol");
-
-const expectThrow = require("./helpers/expectThrow.js");
+const tests = require("daonomic-tests");
 
 contract("GoldeaSale", function(accounts) {
   let testing;
@@ -26,11 +25,11 @@ contract("GoldeaSale", function(accounts) {
     await token.transfer(testing.address, bn("200000000000"));
 
     await testing.pause();
-    await expectThrow(
+    await tests.expectThrow(
       testing.sendTransaction({value: bn("3750000000000001"), from: accounts[1]})
     );
 
-    await expectThrow(
+    await tests.expectThrow(
       testing.onTokenTransfer(accounts[2], 1, "", {from: accounts[9]})
     );
   });
@@ -86,7 +85,7 @@ contract("GoldeaSale", function(accounts) {
   it("should not sell tokens for other tokens", async () => {
     await token.transfer(testing.address, bn("200000000000"));
 
-    await expectThrow(
+    await tests.expectThrow(
         testing.onTokenTransfer(accounts[2], 1, "")
     );
   });
@@ -110,7 +109,7 @@ contract("GoldeaSale", function(accounts) {
   it("should deny GoldeaToken withdraw", async () => {
     await token.transfer(testing.address, bn("200000000000"));
 
-    await expectThrow(
+    await tests.expectThrow(
       testing.withdraw(token.address, accounts[8], 1000)
     );
   });
@@ -118,7 +117,7 @@ contract("GoldeaSale", function(accounts) {
   it("should turn off sale on endDate and burn rest", async () => {
     await token.transfer(testing.address, bn("200000000000"));
 
-    await expectThrow(
+    await tests.expectThrow(
       testing.burn()
     );
 
@@ -129,7 +128,7 @@ contract("GoldeaSale", function(accounts) {
     await assertEqual(token.balanceOf(accounts[4]), 9999999);
 
     await web3.currentProvider.send({jsonrpc: "2.0", method: "evm_increaseTime", params: [200], id: 0});
-    await expectThrow(
+    await tests.expectThrow(
       testing.sendTransaction({value: bn("3750000000000001"), from: accounts[4]})
     );
 

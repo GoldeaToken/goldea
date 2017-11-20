@@ -1,6 +1,5 @@
 var GoldeaPeriod = artifacts.require("./goldea/GoldeaPeriod.sol");
-
-const expectThrow = require("./helpers/expectThrow.js");
+const tests = require("daonomic-tests");
 
 contract("GoldeaPeriod", function(accounts) {
     let testing;
@@ -15,10 +14,10 @@ contract("GoldeaPeriod", function(accounts) {
     }
 
     it("should calculate periods", async () => {
-        await expectThrow(
+        await tests.expectThrow(
             testing.getPeriodExternal.call(1510703999)
         );
-        await expectThrow(
+        await tests.expectThrow(
             testing.getPeriodExternal.call(1521072000)
         );
         await verifyPeriod(1510704000, 0, 0);
