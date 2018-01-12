@@ -30,7 +30,8 @@ function getUserHome() {
 if (config && config.startsWith("~")) {
     config = getUserHome() + config.substring(1);
 }
-
+//var callback = function(err, res) {console.log(err ? err : res);}
+//web3.eth.sendTransaction({from: "0x831244b8cce737b9844fcb13ec04e2bccc5a6e4a", to: "0x884ffccb29d5aba8c94509663595f1dbf823dcc9", value: "10000000000000000"}, callback);
 module.exports = {
     networks: {},
     solc: {
@@ -43,7 +44,7 @@ module.exports = {
 
 var networkConfig = {
     gas: 300000,
-    gasPrice: 200000000
+    gasPrice: 10000000000
 };
 
 if (config) {
